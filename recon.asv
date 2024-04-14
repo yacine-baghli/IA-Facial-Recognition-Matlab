@@ -1,0 +1,485 @@
+% BAGHLI Yacine
+% Debut le : 06/10/2023
+% Fin le : 19/11/2023
+
+% Attention ce script affiche 38 figures
+
+% On ferme toutes les fenetres deja ouvertes
+
+clear;
+close all;
+
+% On importe notre base de donnees
+
+load YaleFaces.mat;
+
+% On cree une liste des titres de nos figures
+
+titre1={ "glasses", "happy", "normal", "sad", "sleepy", "surprised","glasses+moustache","moustache+happy","moustache+normal","moustache","sleepy+moustache","moustache+suprised"};
+
+
+% On cree une boucle qui nous permet d'afficher les matrices de pixels
+% qu'on a recomposee avec la fonction "fonction_recomposer" grace à la 
+% fonction subplot et imshow. 
+% On leur assigne un titre à partir de la liste cree juste avant :
+
+for i=1:12
+     K=X_train(:,i);
+     P=fonction_recomposer(K);
+     subplot(4,4,i);
+     imshow(P,[]);
+
+     title(titre1{i});
+ end
+
+% On cree nos nouvelles matrices :
+
+X_moy = mean(X_train,2);
+X_c=X_train-X_moy;
+
+% On cree une liste des titres pour nos figures 
+
+titre2={ "Visage moyen ", "Origine n°6", "Centré n°6", "Origine n°12", "Centré n°12"};
+
+% On cree une nouvelle figure avec les nouveaux visages 
+
+figure;
+
+subplot(1, 5, 1);
+imshow(fonction_recomposer(X_moy), []);
+title(titre2{1});
+
+K=X_train(:,6);
+subplot(1, 5, 2);
+imshow(fonction_recomposer(K), []);
+title(titre2{2});
+
+K=X_c(:,6);
+subplot(1, 5, 3);
+imshow(fonction_recomposer(K), []);
+title(titre2{3});
+
+K=X_train(:,12);
+subplot(1, 5, 4);
+imshow(fonction_recomposer(K), []);
+title(titre2{4});
+
+K=X_c(:,12);
+subplot(1, 5, 5);
+imshow(fonction_recomposer(K), []);
+title(titre2{5});
+
+
+
+% On peut effectuer la decomposition en valeurs singulieres grace à la 
+% commande suivante : 
+
+[U, S, V] = svd(X_c, 0);
+
+vp=diag(S).^2;
+
+pourcentage_vp=(vp.*100)/sum(vp);
+
+somme_vp=cumsum(pourcentage_vp);
+
+% On peut remarquer que la somme des pourcentages est bien égale à 100%
+somme_pourcentage=sum(pourcentage_vp);
+
+
+
+
+
+K=1:90;
+
+figure
+plot(K,somme_vp);
+title('Courbe de la somme cumulée des valeurs propres en pourcentage K=90')
+xlabel('K')
+ylabel('Le pourcentage des vp')
+
+
+
+% Pour k=15 on a un pourcentage cumule des valeurs propres qui est egal a quasiment 80.7%  
+
+% Pour avoir un pourcentage de 75% il nous faut un K d'au moins 11.
+
+
+
+
+
+X=X_train(:,6);%l'image d'origine
+
+Z = U'*(X-X_moy);
+% On remarque que la taille de la matrice Z est bien de la forme K*1 
+%(Dans ce cas K=90)
+
+X_reconstruite = X_moy + U*Z;
+
+e = abs(X-X_reconstruite);
+
+
+figure;
+K=X_train(:,6);
+subplot(1, 3, 1);
+imshow(fonction_recomposer(K), []);
+title(titre1{6});
+
+subplot(1, 3, 2);
+imshow(fonction_recomposer(X_reconstruite), []);
+title('Image reconstruite');
+
+
+%****************************
+% On recommence avec k=50
+
+k=50;
+X=X_train(:,6);%l'image d'origine
+
+Z_50= U(:,1:k)'*(X-X_moy);
+% On remarque que la taille de la matrice Z_50 est bien de la forme K*1 
+%(Dans ce cas K=50)
+
+X_reconstruite_50 = X_moy + U(:,1:k)*Z_50;
+
+e_50 = abs(X-X_reconstruite_50);
+
+
+figure;
+K=X_train(:,6);
+subplot(4, 2, 1);
+imshow(fonction_recomposer(K), []);
+title(titre1{6});
+
+subplot(4, 2, 2);
+imshow(fonction_recomposer(X_reconstruite_50), []);
+title('Image reconstruite k=50');
+
+
+
+%****************************
+% On recommence avec k=30
+
+k=30;
+X=X_train(:,6);%l'image d'origine
+
+Z_30= U(:,1:k)'*(X-X_moy);
+% On remarque que la taille de la matrice Z_30 est bien de la forme K*1 
+%(Dans ce cas K=30)
+
+X_reconstruite_30 = X_moy + U(:,1:k)*Z_30;
+
+e_30 = abs(X-X_reconstruite_30);
+
+
+% figure;
+K=X_train(:,6);
+subplot(4, 2, 3);
+imshow(fonction_recomposer(K), []);
+title(titre1{6});
+
+subplot(4, 2, 4);
+imshow(fonction_recomposer(X_reconstruite_30), []);
+title('Image reconstruite k=30');
+
+%****************************
+% On recommence avec k=15
+
+
+k=15;
+X=X_train(:,6);%l'image d'origine
+
+Z_15= U(:,1:k)'*(X-X_moy);
+% On remarque que la taille de la matrice Z_15 est bien de la forme K*1 
+%(Dans ce cas K=15)
+
+X_reconstruite_15 = X_moy + U(:,1:k)*Z_15;
+
+e_15 = abs(X-X_reconstruite_15);
+
+
+% figure;
+K=X_train(:,6);
+subplot(4, 2, 5);
+imshow(fonction_recomposer(K), []);
+title(titre1{6});
+
+subplot(4, 2, 6);
+imshow(fonction_recomposer(X_reconstruite_15), []);
+title('Image reconstruite k=15');
+
+
+
+
+%****************************
+% On recommence avec k=5
+
+
+k=5;
+X=X_train(:,6);%l'image d'origine
+
+Z_5= U(:,1:k)'*(X-X_moy);
+% On remarque que la taille de la matrice Z_5 est bien de la forme K*1 
+%(Dans ce cas K=5)
+
+X_reconstruite_5 = X_moy + U(:,1:k)*Z_5;
+
+e_5 = abs(X-X_reconstruite_5);
+
+
+% figure;
+K=X_train(:,6);
+subplot(4, 2, 7);
+imshow(fonction_recomposer(K), []);
+title(titre1{6});
+
+subplot(4, 2, 8);
+imshow(fonction_recomposer(X_reconstruite_5), []);
+title('Image reconstruite k=5');
+
+
+
+
+%****************************
+% On refait la meme chose pour une image de notre base d'entrainement:
+
+X=X_train(:,25);%On prend par exemple la 25 eme image 
+
+Z = U'*(X-X_moy);
+
+X_reconstruite = X_moy + U*Z;
+
+e = sqrt(sum((X-X_reconstruite).^2));
+
+
+figure;
+K=X_train(:,25);
+subplot(1, 3, 1);
+imshow(fonction_recomposer(K), []);
+title('Image de test');
+
+subplot(1, 3, 2);
+imshow(fonction_recomposer(X_reconstruite), []);
+title('Image reconstruite');
+
+
+% Identification d’un visage
+
+[U, S, V] = svd(X_c, 0);
+
+% Initialisation de la matrice E_k
+E_k = zeros(1,90);
+
+k = 90;
+
+X=X_test(:,23);%on prend une image de la base de test par exemple la 23 eme
+
+Z_test = U(:, 1:k)' * (X - X_moy);
+
+% On calcule la simulitude entre cette image et toutes les images de notre
+% base d'entrainement. Ces simulitudes seront classes dans la matrice E_k :
+
+for i = 1:90
+
+    Z_train = U(:, 1:k)' * (X_train(:, i) - X_moy);
+    E_k(i) = sqrt(sum((Z_test - Z_train).^2));
+
+end
+
+% On peut afficher l'image qui ressemble le plus a l'image 23:
+disp('L image qui ressemble le plus à l image 23 est :');
+
+[~, indice_min] = min(E_k);
+disp('L image :');
+disp(id_train(indice_min));
+
+
+% On peut meme les afficher 
+figure;
+
+K=X_test(:,23);
+subplot(1, 3, 1);
+imshow(fonction_recomposer(K), []);
+title('Image de test 23');
+
+
+X_train_r=X_test(:,id_train(indice_min));
+subplot(1, 3, 2);
+imshow(fonction_recomposer(X_train_r), []);
+title('Image entrainement ressemble le +')
+
+
+% On cherche mainteant à refaire cet algo pour toutes les images de notre
+% base de test mais aussi pour k=50, 30, 15, 5. Il suffit alors d'ajouter
+% deux boucles à notre dernier algo :
+
+
+% Boucle sur toutes les images de la base de test
+for j = 1:size(X_test, 2)
+    
+    X = X_test(:, j);% On prend nos images de test une par une 
+
+    figure;
+
+    % On peut afficher les resultats pour chaque k grace a num2str qui nous
+    % permet de convertir un integer en string
+    subplot(2, 5, 1);
+    imshow(fonction_recomposer(X), []);
+    title(['Image de test ' num2str(j)]);
+
+    subplot_counter = 2;
+
+    % Boucle sur les valeurs specifiques de k
+    for k = [50, 30, 15, 5]
+
+        % On place notre algo ici :
+        E_k = zeros(1, 90);
+
+        Z_test = U(:, 1:k)' * (X - X_moy);
+        for i = 1:90
+            Z_train = U(:, 1:k)' * (X_train(:, i) - X_moy);
+            E_k(i) = sqrt(sum((Z_test - Z_train).^2));
+        end
+
+        
+        [~, indice_min] = min(E_k);
+
+        
+        disp(['Pour k = ' num2str(k) ' et l image ' num2str(j) ', ''l image qui ressemble le plus est : ' num2str(id_train(indice_min))]);
+
+        % Et meme afficher les images pour mieux comprendre
+        subplot(2, 5, subplot_counter);
+        imshow(fonction_recomposer(X_train(:, indice_min)), []);
+        title(['k=' num2str(k)]);
+
+        
+        subplot_counter = subplot_counter + 1;
+    end
+end
+
+% On peut remarquer que plus le k baisse plus la ressemblance avec l'image
+% de test est moindre
+
+%******************************************
+% Bonus : classification visage/non visage :
+% close all;
+k = 30;
+
+E_train = zeros(1,90);
+
+% L'erreur de reconstruction pour chaque image d'entrainement :
+
+for i = 1:90 % Le nombre d'images dans la base train
+
+    Z_train = U(:, 1:k)' * (X_train(:, i) - X_moy);
+    X_reconstruite = X_moy + U(:, 1:k) * Z_train;
+    E_train(i) = sqrt(sum((X_train(:, i) - X_reconstruite).^2));
+
+end
+
+% L'erreur maximale et moyenne :
+
+disp(['Erreur maximale pour la base d entrainement (k=30) : ' 
+    num2str(max(E_train))]);
+disp(['Erreur moyenne pour la base d entrainement (k=30) : ' 
+    num2str(mean(E_train))]);
+
+
+
+% On peut refaire la meme chose pour la base de test :   
+
+k = 30;
+
+E_test = zeros(1,90);
+
+% L'erreur de reconstruction pour chaque image d'entrainement :
+
+for i = 1:30 % Le nombre d'images dans la base test
+
+    Z_test = U(:, 1:k)' * (X_test(:, i) - X_moy);
+    X_reconstruite = X_moy + U(:, 1:k) * Z_test;
+    E_test(i) = sqrt(sum((X_train(:, i) - X_reconstruite).^2));
+
+end
+
+disp(['Erreur maximale pour la base de test (k=30) : ' 
+    num2str(max(E_test))]);
+disp(['Erreur moyenne pour la base de test (k=30) : ' 
+    num2str(mean(E_test))]);
+
+
+
+
+
+% On peut refaire la meme chose pour la base noface :
+k=30;
+%load noface.mat; 
+
+E_noface = zeros(1,10);
+
+% L'erreur de reconstruction pour chaque image de la base noface
+
+for i = 1:10
+
+    Z_noface = U(:, 1:k)' * (X_noface(:,i) - X_moy);
+    X_reconstruite_noface = X_moy + U(:, 1:k) * Z_noface;
+    E_noface(i) = sqrt(sum((X_noface(:,i) - X_reconstruite_noface).^2));
+
+end
+
+% L'erreur minimale et moyenne :
+
+disp(['Erreur minimale pour la base noface (k=30) : ' num2str(min(E_noface))]);
+disp(['Erreur moyenne pour la base noface (k=30) : ' num2str(mean(E_noface))]);
+
+
+% On peut comparer ces trois moyennes d'erreurs et on constate que 
+% mean(E_noface) est bien plus grande(3 fois plus grande) que mean(E_train)
+% et que mean(E_test).
+% Autrement dit les images de la base noface ne ressemble pas à l'image
+% moyenne ce qui est logique.
+
+
+% L'algo de classification :
+k=30;
+
+load baseunknown.mat; 
+
+Classification = zeros(1, 10);
+
+
+for i = 1:10
+
+    Z_inconnu = U(:, 1:k)' * (X_inconnu(:, i) - X_moy);
+    X_reconstruite_inconnu = X_moy + U(:, 1:k) * Z_inconnu;
+    E_inconnu = sqrt(sum((X_inconnu(:, i) - X_reconstruite_inconnu).^2));
+
+    % On a remarqué grace à la question précédente que l'erreur minimale
+    % des noface est de 1984.8303 on place donc notre seuil à 1900 :
+    seuil = 1900; 
+
+    if E_inconnu < seuil
+        Classification(i) = 1; % C'est bien un visage
+    else
+        Classification(i) = 0; % Ce n'est pas un visage
+    end
+end
+
+% Les resultats de la classification pour chaque image inconnue
+
+disp('Résultats de la classification pour la baseunknown :');
+disp(Classification);
+
+figure;
+for i=1:10
+     K=X_inconnu(:,i);
+     P=fonction_recomposer(K);
+     subplot(3,4,i);
+     imshow(P,[]);
+
+     if Classification(i) == 1
+        title('Visage'); % C'est bien un visage
+     else
+        title('Pas un visage'); % Ce n'est pas un visage
+     end
+     
+ end
